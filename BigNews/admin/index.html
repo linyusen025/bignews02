@@ -57,6 +57,7 @@
 
     <script src="./libs/http.js"></script>
     <script>
+        // 一进入页面就发送ajax请求获取用户信息
         $(function(){
             $.ajax({
                 type:'get',
@@ -68,6 +69,12 @@
                         $('.user_info>span>i').text(nickname);
                     }
                 }
+            })
+
+            // 退出登录,删除token,返回到登录页
+            $('.logout').on('click',function(){
+                localStorage.removeItem('token');
+                window.location.href = './login.html';
             })
         })
     </script>
