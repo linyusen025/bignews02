@@ -75,7 +75,7 @@
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">取消</button>
                     <button type="button" id="btnAddEdit" class="btn btn-primary">新增</button>
                 </div>
             </div>
@@ -91,7 +91,7 @@
             <td>{{$value.slug}}</td>
             <td class="text-center">
                 <a href="javascript:void(0)" data-id={{$value.id}} data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
-                <a href="javascript:void(0)" data-id={{$value.id}} class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:void(0)" data-id={{$value.id}} class="btn btn-danger btn-xs btn-delete">删除</a>
             </td>
         </tr>
         {{/each}}
@@ -181,7 +181,33 @@
             }
         });
 
-        //四
+        //四.给模态框中的取消按钮设置事件,用reset()方法把表单中的元素重置为默认值(清空)
+        $('.btn-cancel').on('click',function(){
+            $('#myModal form')[0].reset();
+        })
+
+        // 五,删除,给删除按钮注册点击事件,(委托注册)
+        $('tbody').on('click','.btn-delete',function(){
+             let that = $(this);
+             if(confirm('确定要删除吗')){
+                let deleteId = $(this).attr('data-id');
+                 $.ajax({
+                     type:'post',
+                     url:BigNew.category_delete,
+                     data:{
+                         id:deleteId
+                     },
+                     success:function(backData){
+                         if(backData.code == 204){
+                            //  第一种方法
+                            //  getData();
+                            // 第二种方法
+                            that.parent().parent().remove();
+                         }
+                     }
+                 })
+             }
+        })
     })
     </script>
 </body>
