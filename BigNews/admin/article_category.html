@@ -51,6 +51,38 @@
             </table>
         </div>
     </div>
+    <!-- 模态框 -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <!-- 隐藏域 -->
+                        <input type="hidden" id="articleId" name="">
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">分类类别:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">分类列表:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" id="btnAddEdit" class="btn btn-primary">新增</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="./libs/http.js"></script>
     <script id="article_category_temp" type="text/html">
         {{each data}}
@@ -58,7 +90,7 @@
             <td>{{$value.name}}</td>
             <td>{{$value.slug}}</td>
             <td class="text-center">
-                <a href="javascript:void(0)" data-id={{$value.id}} data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id={{$value.id}} data-toggle="modal" data-target="#myModal" class=" btn btn-info btn-xs">编辑</a>
                 <a href="javascript:void(0)" data-id={{$value.id}} class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
@@ -66,18 +98,92 @@
     </script>
     <script>
         // 一进入页面就发送ajax请求,获取列表信息,用模板引擎渲染到页面上
-        $(function(){
-            $.ajax({
-                type:'get',
-                url:BigNew.category_list,
-                success:function(backData){
-                    if(backData.code == 200){
-                        let resHtml = template('article_category_temp',backData);
-                        $('tbody').html(resHtml);
+        $(function () {
+            getData();
+            function getData() {
+                $.ajax({
+                    type: 'get',
+                    url: BigNew.category_list,
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            let resHtml = template('article_category_temp', backData);
+                            $('tbody').html(resHtml);
+                        }
                     }
-                }
-            })
-        })
+                })
+            };
+
+        // 二,引入模态框,,show.bs.modal方法调用后立即触发该事件,可以通过relatedTarget属性进行访问
+        // 先判断用户点击的是新增/编辑,
+        // 新增,就把新增分类跟确定按钮文本内容设置为新增,颜色设置为绿色
+        // 编辑,就把新增分类跟确定按钮文本内容设置为编辑,颜色设置为蓝色
+        $('#myModal').on('show.bs.modal', function (e) {
+            // console.log(e.relatedTarget);
+            if (e.relatedTarget == $('#xinzengfenlei')[0]) {
+                $('#myModalLabel').text('新增分类');
+                $('#btnAddEdit').text('新增').addClass('btn-success').removeClass('btn-primary');
+            } else {
+                $('#myModalLabel').text('编辑分类');
+                $('#btnAddEdit').text('编辑').addClass('btn-primary').removeClass('btn-success');
+                // 编辑第一步,获取隐藏域 编辑前的内容
+                $('#articleId').val($(e.relatedTarget).attr('data-id'));
+                $('#recipient-name').val($(e.relatedTarget).parent().prev().prev().text().trim());
+                $('#message-text').val($(e.relatedTarget).parent().prev().text().trim());
+                 
+            }
+        });
+
+        // 三,给模态框确定按钮设置点击事件,判断用户点击的是新增/编辑
+        // 新增,获取分类类别和分类列表的内容,
+        // 发送ajax,新增成功后隐藏模态框,刷新页面,清空文本框
+        // 编辑,第一步,获取编辑前的内容,第二步获取编辑后的内容,
+        // 发送ajax,编辑成功后隐藏模态框,刷新页面
+        $('#btnAddEdit').on('click', function () {
+            if ($(this).hasClass('btn-success')) {
+                let addName = $('#recipient-name').val().trim();
+                let addSlug = $('#message-text').val().trim();
+                $.ajax({
+                    type: 'post',
+                    url: BigNew.category_add,
+                    data: {
+                        name: addName,
+                        slug: addSlug
+                    },
+                    success: function (backData) {
+                        // console.log(backData);
+                        if (backData.code == 200) {
+                            $('#myModal').modal('hide');
+                            getData();
+                            $('#recipient-name').val("");
+                            $('#message-text').val("");
+                        }
+                    }
+                })
+            }else{
+                let editName = $('#recipient-name').val().trim();
+                let editSlug = $('#message-text').val().trim();
+                let editId = $('#articleId').val().trim();
+                $.ajax({
+                    type:'post',
+                    url:BigNew.category_edit,
+                    data:{
+                        id:editId,
+                        name:editName,
+                        slug:editSlug
+                    },
+                    success:function(backData){
+                        if(backData.code == 200){
+                            $('#myModal').modal('hide');
+                            getData();
+                        }
+                    }
+                })
+            }
+        });
+
+        //四
+    })
     </script>
 </body>
+
 </html>
