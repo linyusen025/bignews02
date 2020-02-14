@@ -72,6 +72,64 @@
             </div>
         </div>
     </div>
+    <script src="./libs/http.js"></script>
+    <!-- 文章类别 模板-->
+    <script id="category_temp" type="text/html">
+        <option value="">所有分类</option>
+        {{each data}}
+            <option value="{{$value.id}}"> {{$value.name}} </option>
+        {{/each}}
+    </script>
+    <!-- 文章数据列表 模板 -->
+    <script id="list_temp" type="text/html">
+        {{each data.data}}
+        <tr>
+            <td>{{$value.title}}</td>
+            <td>{{$value.author}}</td>
+            <td>{{$value.category}}</td>
+            <td class="text-center">{{$value.date}}</td>
+            <td class="text-center">{{$value.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html" data-id={{$value.categoryId}} class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id={{$value.categoryId}} class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        // 一 进入页面就发送ajax请求,获取文章列表中的所有分类用模板引擎渲染到下拉菜单中
+        $(function () {
+            $.ajax({
+                type: 'get',
+                url: BigNew.category_list,
+                success: function (backData) {
+                    if(backData.code == 200){
+                        let resHtml = template('category_temp',backData);
+                        $('#selCategory').html(resHtml);
+                    }
+
+                }
+            })
+
+            // 二 进入页面就发送ajax请求,获取文章列表中文章数据列表用模板引擎渲染到页面
+            $.ajax({
+                type:'get',
+                url:BigNew.article_query,
+                data:{
+                  type:$('#selCategory').val(),
+                  state:$('#selStatus').val(),
+                  page:1,
+                  perpage:6
+                },
+                success:function(backData){
+                    if(backData.code == 200){
+                        let resListHtml = template('list_temp',backData);
+                        $('tbody').html(resListHtml);
+                    }
+                }
+            })
+        })
+    </script>
 </body>
 
 </html>
