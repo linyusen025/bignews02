@@ -95,7 +95,7 @@
             <td class="text-center">{{$value.date}}</td>
             <td class="text-center">{{$value.state}}</td>
             <td class="text-center">
-                <a href="article_edit.html" data-id={{$value.id}} class="btn btn-default btn-xs">编辑</a>
+                <a href="article_edit.html?id={{$value.id}}" class="btn btn-default btn-xs">编辑</a>
                 <a href="javascript:void(0);" data-id={{$value.id}} class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
@@ -172,7 +172,7 @@
                 getData(1, function (backData) {
                     $('#pagination-demo').twbsPagination('changeTotalPages', backData.data.totalPage, 1);
                 })
-            })
+            });
             // 四,给删除按钮设置点击事件(委托注册),获取要删除的文章,发送ajax请求,删除成功后刷新页面
             // 重新加载删除后得到的新的数据,总的页码有可能变少,那就根据新的总页数,重新生成分页结构
             $('tbody').on('click', '.delete', function () {
@@ -193,7 +193,7 @@
                         }
                     })
                 }
-            })
+            });
 
             // 二 进入页面就发送ajax请求,获取文章列表中文章数据列表用模板引擎渲染到页面
             // $.ajax({
