@@ -160,6 +160,110 @@
 
     </div>
   </div>
+  <!-- 获取评论数据 模板 -->
+  <script id="com_temp" type="text/html">
+    {{each data.data}}
+    <tr>
+      <td>{{$value.author}}</td>
+      <td>{{$value.content}}</td>
+      <td>{{$value.title}}</td>
+      <td>{{$value.date}} {{$value.time}}</td>
+      <td>{{$value.state}}</td>
+      <td class="text-center">
+        {{if $value.state == '待审核'}}
+        <a href="javascript:void(0);;" data-id={{$value.id}} class="btn btn-info btn-xs approve">批准</a>
+        {{else if $value.state == '已通过'}}
+        <a href="javascript:void(0);;" data-id={{$value.id}} class="btn btn-warning btn-xs refuse">拒绝</a>
+        {{/if}}
+        <a href="javascript:void(0);;" data-id={{$value.id}} class="btn btn-danger btn-xs delete">删除</a>
+      </td>
+    </tr>
+    {{/each}}
+  </script>
+  <script src="./libs/http.js"></script>
+  <script>
+    $(function () {
+      
+      // 封装函数
+      function getData() {
+        $.ajax({
+          type: 'get',
+          url: BigNew.comment_list,
+          data: {
+            page: 1,
+            perpage: 6
+          },
+          success: function (backData) {
+            if (backData.code == 200) {
+              let resHtml = template('com_temp', backData);
+              $('tbody').html(resHtml);
+            }
+          }
+        });
+
+      }
+      // 一进入页面就获取评论数据信息
+      getData();
+
+      // 二,批准事件
+      $('tbody').on('click', '.approve', function (e) {
+        e.preventDefault();
+        let arrId = $(this).attr('data-id');
+        $.ajax({
+          type: 'post',
+          url: BigNew.comment_pass,
+          data: {
+            id: arrId
+          },
+          success: function (backData) {
+            if (backData.code == 200) {
+              alert('审核通过');
+              getData();
+            }
+          }
+        });
+      });
+
+      // 三,拒绝事件
+      $('tbody').on('click', '.refuse', function (e) {
+        e.preventDefault();
+        let arrId = $(this).attr('data-id');
+        $.ajax({
+          type: 'post',
+          url: BigNew.comment_reject,
+          data: {
+            id: arrId
+          },
+          success: function (backData) {
+            if (backData.code == 200) {
+              alert('已拒绝');
+              getData();
+            }
+          }
+        });
+      });
+
+      // 四,删除事件
+      $('tbody').on('click', '.delete', function (e) {
+        e.preventDefault();
+        let arrId = $(this).attr('data-id');
+        $.ajax({
+          type: 'post',
+          url: BigNew.comment_delete,
+          data: {
+            id: arrId
+          },
+          success: function (backData) {
+            if (backData.code == 200) {
+              alert('删除成功');
+              getData();
+            }
+          }
+        });
+      });
+
+    })
+  </script>
 </body>
 
 </html>
