@@ -222,11 +222,173 @@
         <p>CopyRight © 2019 深圳大事件信息技术股份有限公司 All Rights Reserved</p>
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
+     <!-- 一最新资讯 模板 -->
+     <script id="new_temp" type="text/html">
+         {{each data}}
+         <div class="common_news_list">
+            <a href="./article.html?id={{$value.id}}" class="list_pic"><img src="{{$value.cover}}" alt=""></a>
+            <h4><a href="./article.html?id={{$value.id}}">{{$value.title}} </a></h4>
+            <p>{{@ $value.intro}}
+            </p>
+            <div class="new_info">
+                <span>标签：{{$value.category}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读( {{$value.read}}
+                    )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论( {{$value.comments}} )</span>
+                <b>{{$value.date}}</b>
+            </div>
+        </div>
+         {{/each}}
+     </script>
+
+     <!-- 二,热点图 模板 -->
+     <script id="hot_temp" type="text/html">
+         {{each data}}
+            {{if $index == 0}}
+                  <li class="first">
+             {{else}}
+                 <li>
+             {{/if}}
+            <a href="./article.html?id={{$value.id}}"><img src="{{$value.cover}}" alt=""></a>
+            <p>{{$value.title}}</p>
+        </li>
+         {{/each}}
+     </script>
+
+     <!-- 三热门排行 模板 -->
+     <script id="rank_temp" type="text/html">
+         {{each data}}
+         <li>
+             {{if $index == 0}}
+             <span class="first">1</span>
+             {{else if $index == 1}}
+             <span class="second">2</span>
+             {{else if $index == 2}}
+             <span class="third">3</span>
+             {{else}}
+             <span>1</span>
+             {{/if}}
+             <a href="./article.html?id={{$value.id}}">{{$value.title}}</a>
+        </li>
+         {{/each}}
+     </script>
+
+     <!-- 四最新评论 模板 -->
+     <script id="comment_temp" type="text/html">
+        {{each data}} 
+        <li>
+            <span>{{$value.author.substr(0,1)}}</span>
+            <b><em>{{$value.author}}</em> {{$value.date}}({{$value.time}})说:</b>
+            <strong>{{$value.intro}}</strong>
+        </li>
+        {{/each}}
+     </script>
+     
+     <!-- 五焦点关注 模板 -->
+     <script id="attention_temp" type="text/html">
+        {{each data}} 
+        <li><a href="./article.html?id={{$value.id}}">{{$value.intro}}</a></li>
+        {{/each}}
+     </script>
+
+     <!-- 六文章类别显示 -->
+     <script id="category_temp" type="text/html">
+         {{each data}}
+         <li><a href="./list.html?id={{$value.id}}">{{$value.name}}</a></li>
+         {{/each}}
+     </script>
 
     <!-- 导入模板引擎js文件 -->
     <script src="./js/template-web.js"></script>
     <!-- 引入jq文件 -->
     <script src="./js/jquery-1.12.4.min.js"></script>
-</body>
+    <script>
+        $(function(){
+            // 一最新资讯
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8080/api/v1/index/latest',
+                success:function(backData){
+                    // console.log(backData);
+                    if(backData.code == 200){
+                        let resHtml = template('new_temp',backData);
+                        $('.common_news').html(resHtml);
+                    }
+                }
+            });
 
+            // 二,热点图
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8080/api/v1/index/hotpic',
+                success:function(backData){
+                    // console.log(backData);
+                    if(backData.code == 200){
+                        let resHtml = template('hot_temp',backData);
+                        $('.focus_list').html(resHtml);
+                    }
+                }
+            });
+
+            // 三热门排行
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8080/api/v1/index/rank',
+                success:function(backData){
+                    if(backData.code == 200){
+                        let resHtml = template('rank_temp',backData);
+                        $('ul.hotrank_list').html(resHtml);
+                    }
+                }
+            });
+
+            // 四最新评论
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8080/api/v1/index/latest_comment',
+                success:function(backData){
+                    if(backData.code == 200){
+                        let resHtml = template('comment_temp',backData);
+                        $('ul.comment_list').html(resHtml);
+                    }
+                }
+            });
+
+            // 五焦点关注
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8080/api/v1/index/attention',
+                success:function(backData){
+                    if(backData.code == 200){
+                        let resHtml = template('attention_temp',backData);
+                        $('ul.guanzhu_list').html(resHtml);
+                    }
+                }
+            });
+
+            // 六文章类别显示
+            $.ajax({
+                type:'get',
+                url:'http://localhost:8080/api/v1/index/category',
+                success:function(backData){
+                    if(backData.code == 200){
+                        let resHtml = template('category_temp',backData);
+                        $('ul.level_two').html('<li class="up"></li>'+resHtml);
+                        $('ul.left_menu.fl').html(resHtml);
+                    }
+                }
+            });
+
+            // 搜索框
+            // 先判断是点文章类别还是搜索框
+            $('.search_btn').on('click',function(){
+                let searchTxt = $('.search_txt').val().trim();
+                if(searchTxt == ""){
+                    alert('搜索内容不能为空');
+                    return;
+                }else{
+                    window.location.href = './list.html?search='+searchTxt;
+                }
+            });
+        })
+    </script>
+</body>
 </html>

@@ -138,16 +138,15 @@
                     contentType: false,
                     processData: false,
                     success: function (backData) {
-                        console.log(backData);
-                        // if(backData.code == 200){
-                        //     alert('新增发布成功');
-                        //     window.location.href = './article_list.html';
-                        // }
+                        if(backData.code == 200){
+                            alert('新增发布成功');
+                            window.location.href = './article_list.html';
+                        }
                     }
                 });
             });
              
-            六,存入草稿
+            // 六,存入草稿
             $('.btn-draft').on('click', function (e) {
                 e.preventDefault();
                 let form1 = document.querySelector('form');
