@@ -205,10 +205,170 @@
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
 
+
+    <!-- 获取评论 模板 -->
+    <script id="comments_temp" type="text/html">
+       {{each data}} 
+       <div class="comment_detail_list">
+        <div class="person_pic fl">{{$value.author.substr(0,1)}}</div>
+        <div class="name_time fl"><b>{{$value.author}}</b><span>{{$value.date}}  {{$value.time}} </span></div>
+        <div class="comment_text fl">
+            {{$value.content}}
+        </div>
+    </div>
+       {{/each}}
+    </script>
+
+    <!-- 三热门排行 模板 -->
+    <script id="rank_temp" type="text/html">
+        {{each data}}
+            <li>
+                {{if $index == 0}}
+                <span class="first">1</span>
+                {{else if $index == 1}}
+                <span class="second">2</span>
+                {{else if $index == 2}}
+                <span class="third">3</span>
+                {{else}}
+                <span>1</span>
+                {{/if}}
+                <a href="./article.html?id={{$value.id}}">{{$value.title}}</a>
+           </li>
+        {{/each}}
+    </script>
+
+    <!-- 四最新评论 模板 -->
+    <script id="comment_temp" type="text/html">
+        {{each data}} 
+            <li>
+                <span>{{$value.author.substr(0,1)}}</span>
+                <b><em>{{$value.author}}</em> {{$value.date}}({{$value.time}})说:</b>
+                <strong>{{$value.intro}}</strong>
+            </li>
+        {{/each}}
+    </script>
+
+    <!-- 五焦点关注 模板 -->
+    <script id="attention_temp" type="text/html">
+            {{each data}} 
+            <li><a href="./article.html?id={{$value.id}}">{{$value.intro}}</a></li>
+            {{/each}}
+    </script>
+
+
+
     <!-- 引入模板引擎js文件 -->
     <script src="./js/template-web.js"></script>
     <script src="./js/jquery-1.12.4.min.js"></script>
 
+    <script>
+        $(function () {
+            // 一进入页面就获取被点击的文章id的内容
+            let articleId = window.location.search.split('=')[1];
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/index/article',
+                data: {
+                    id: articleId
+                },
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        $('.breadcrumb').children('a').eq(1).text(backData.data.category);
+                        $('.article_title').text(backData.data.title);
+                        $('.article_con').text(backData.data.content);
+                        if (backData.data.prev != null) {
+                            $('.article_links>a').eq(0).text(backData.data.prev.title);
+                            $('.article_links>a').eq(0).attr('href', './article.html?id=' + backData.data.prev.id);
+                        } else {
+                            $('.article_links>a').eq(0).text('没有上一篇');
+                        };
+                        if (backData.data.next != null) {
+                            $('.article_links>a').eq(1).text(backData.data.next.title);
+                            $('.article_links>a').eq(1).attr('href', './article.html?id=' + backData.data.next.id);
+                        } else {
+                            $('.article_links>a').eq(0).text('没有下一篇');
+                        };
+                    }
+                }
+            });
+
+            // 获取评论
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/index/get_comment',
+                data: {
+                    articleId: articleId
+                },
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        $('.comment_count').text(backData.data.length + '条评论');
+                        let resHtml = template('comments_temp', backData);
+                        $('.comment_list_con').html(resHtml);
+                    }
+                }
+            });
+
+            // 发表评论
+            $('.comment_sub').on('click', function (e) {
+                e.preventDefault();
+                let comment_name = $('.comment_name').val().trim();
+                let comment_input = $('.comment_input').val().trim();
+                $.ajax({
+                    type: 'post',
+                    url: 'http://localhost:8080/api/v1/index/post_comment',
+                    data: {
+                        author: comment_name,
+                        content: comment_input,
+                        articleId: articleId
+                    },
+                    success: function (backData) {
+                        if (backData.code == 201) {
+                            alert('评论成功,待管理员审核');
+                            $('.comment_name').val("");
+                            $('.comment_input').val("");
+                        }
+                    }
+                });
+            });
+
+            // 三热门排行
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/index/rank',
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        let resHtml = template('rank_temp', backData);
+                        $('ul.hotrank_list').html(resHtml);
+                    }
+                }
+            });
+
+            // 四最新评论
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/index/latest_comment',
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        let resHtml = template('comment_temp', backData);
+                        $('ul.comment_list').html(resHtml);
+                    }
+                }
+            });
+
+            // 五焦点关注
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/index/attention',
+                success: function (backData) {
+                    if (backData.code == 200) {
+                        let resHtml = template('attention_temp', backData);
+                        $('ul.guanzhu_list').html(resHtml);
+                    }
+                }
+            });
+
+        })
+    </script>
 </body>
 
 </html>
