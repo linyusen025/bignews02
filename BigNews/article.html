@@ -204,7 +204,12 @@
         <p>CopyRight © 2019 深圳大事件信息技术股份有限公司 All Rights Reserved</p>
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
-
+    
+    <!-- info 模板 -->
+    <script id="info_temp" type="text/html">
+        {{data.author}} 发布于 {{data.date}}    分类: {{data.category}}   阅读:
+                ({{data.read}})   评论: ({{data.comments}})
+    </script>
 
     <!-- 获取评论 模板 -->
     <script id="comments_temp" type="text/html">
@@ -272,6 +277,7 @@
                     id: articleId
                 },
                 success: function (backData) {
+                    // console.log(backData);
                     if (backData.code == 200) {
                         $('.breadcrumb').children('a').eq(1).text(backData.data.category);
                         $('.article_title').text(backData.data.title);
@@ -288,6 +294,8 @@
                         } else {
                             $('.article_links>a').eq(0).text('没有下一篇');
                         };
+                        let resHtml = template('info_temp',backData);
+                        $('.article_info').html(resHtml);
                     }
                 }
             });
