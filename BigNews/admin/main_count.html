@@ -46,10 +46,10 @@
 
     <div class="container-fluid">
         <div class="row curve-pie">
-            <div class="col-lg-8 col-md-8">
+            <div class="col-lg-8 col-md-7">
                 <div class="gragh_pannel" id="curve_show"></div>
             </div>
-            <div class="col-lg-4 col-md-4">
+            <div class="col-lg-4 col-md-5">
                 <div class="gragh_pannel" id="pie_show"></div>
             </div>
         </div>
@@ -59,12 +59,40 @@
         <div class="column_pannel" id="column_show"></div>
     </div>
 
+    <script>
+        $(function () {
+            $.ajax({
+                type: 'get',
+                url: 'http://localhost:8080/api/v1/admin/data/info',
+                headers: {
+                    'Authorization': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY5MDE0ODcsImlhdCI6MTU4MjEwMTQ4N30.2oNJ4BT-7PycIcnZM9DksgIBzylNNbWD-Plof3plzK_v7u3WVyyMTNP0W39THSRKBDGDupPUvxnd_53mj1L55FVY_nvyUvmgLXlijS7AzSV9QHbwTCp8NSedoARoHhAy-1xS3Xc8OoJajATnWJlMt1_q8xhCsoAi6KgMav0Oi2g'
+                },
+                success: function (backData) {
+                    $('.spannel>em').text(backData.totalArticle);
+                    $('.spannel.scolor01>em').text(backData.dayArticle);
+                    $('.spannel.scolor02>em').text(backData.totalComment);
+                    $('.spannel.scolor03>em').text(backData.dayComment);
+                }
+            });
+        })
+    </script>
 
     <!-- 折线图 -->
     <script>
-        var json = '{"code":200,"msg":"获取成功","date":[{"date":"2019-05-20","count":23},{"date":"2019-05-21","count":19},{"date":"2019-05-22","count":29},{"date":"2019-05-23","count":24},{"date":"2019-05-24","count":28},{"date":"2019-05-25","count":28},{"date":"2019-05-26","count":19},{"date":"2019-05-27","count":25},{"date":"2019-05-28","count":25}]}';
-        var obj = JSON.parse(json);
-        loadEchars(obj);
+
+        // var json = '{"code":200,"msg":"获取成功","date":[{"date":"2019-05-20","count":23},{"date":"2019-05-21","count":19},{"date":"2019-05-22","count":29},{"date":"2019-05-23","count":24},{"date":"2019-05-24","count":28},{"date":"2019-05-25","count":28},{"date":"2019-05-26","count":19},{"date":"2019-05-27","count":25},{"date":"2019-05-28","count":25}]}';
+        // var obj = JSON.parse(json);
+        // loadEchars(obj);
+        $.ajax({
+            type: 'get',
+            url: 'http://localhost:8080/api/v1/admin/data/article',
+            headers: {
+                'Authorization': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY5MDE0ODcsImlhdCI6MTU4MjEwMTQ4N30.2oNJ4BT-7PycIcnZM9DksgIBzylNNbWD-Plof3plzK_v7u3WVyyMTNP0W39THSRKBDGDupPUvxnd_53mj1L55FVY_nvyUvmgLXlijS7AzSV9QHbwTCp8NSedoARoHhAy-1xS3Xc8OoJajATnWJlMt1_q8xhCsoAi6KgMav0Oi2g'
+            },
+            success: function (backData) {
+                loadEchars(backData);
+            }
+        });
 
         function loadEchars(obj) {
             // 基于准备好的dom，初始化echarts实例
@@ -150,52 +178,70 @@
 
     <!-- 环形图 -->
     <script>
-        // 基于准备好的dom，初始化echarts实例
-        var myChart1 = echarts.init(document.getElementById('pie_show'));
 
-        option1 = {
-            title: {
-                left: 'center',
-                text: '分类文章数量比',
+        $.ajax({
+            type: 'get',
+            url: 'http://localhost:8080/api/v1/admin/data/category',
+            headers: {
+                'Authorization': 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiYWRtaW4iLCJleHAiOjIxODY5MDE0ODcsImlhdCI6MTU4MjEwMTQ4N30.2oNJ4BT-7PycIcnZM9DksgIBzylNNbWD-Plof3plzK_v7u3WVyyMTNP0W39THSRKBDGDupPUvxnd_53mj1L55FVY_nvyUvmgLXlijS7AzSV9QHbwTCp8NSedoARoHhAy-1xS3Xc8OoJajATnWJlMt1_q8xhCsoAi6KgMav0Oi2g'
             },
-            tooltip: {
-                trigger: 'item',
-                formatter: "{a} <br/>{b}: {c} ({d}%)"
-            },
-            legend: {
-                orient: 'horizontal',
-                x: 'center',
-                data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱游泳'],
-                top: 30
-            },
-            color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
-            series: [
-                {
-                    name: '分类名称',
-                    type: 'pie',
-                    radius: ['50%', '70%'],
-                    avoidLabelOverlap: false,
-                    label: {
-                        emphasis: {
-                            show: true,
-                            textStyle: {
-                                fontSize: '30',
-                                fontWeight: 'bold'
+            success: function (backData) {
+                getLocation(backData);
+            }
+        })
+        function getLocation(obj) {
+            // 基于准备好的dom，初始化echarts实例
+            var myChart1 = echarts.init(document.getElementById('pie_show'));
+
+            let data1 = [];
+            for (let i = 0; i < obj.date.length; i++) {
+                data1.push(obj.date[i].name);
+            }
+
+            let date = JSON.stringify(obj.date).replace(/articles/g, "value");
+            date = JSON.parse(date);
+
+
+            option1 = {
+                title: {
+                    left: 'center',
+                    text: '分类文章数量比',
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: "{a} <br/>{b}: {c} ({d}%)"
+                },
+                legend: {
+                    orient: 'horizontal',
+                    // x: 'center',
+                    data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱游泳'],
+                    top: 30,
+                    right: 10,
+                },
+                color: ['#5885e8', '#13cfd5', '#00ce68', '#ff9565', '#20ff19'],
+                series: [
+                    {
+                        name: '分类名称',
+                        type: 'pie',
+                        radius: ['50%', '70%'],
+                        avoidLabelOverlap: false,
+                        label: {
+                            emphasis: {
+                                show: true,
+                                textStyle: {
+                                    fontSize: '30',
+                                    fontWeight: 'bold'
+                                }
                             }
-                        }
-                    },
-                    data: [
-                        { value: 335, name: '爱生活' },
-                        { value: 310, name: '趣美味' },
-                        { value: 234, name: '爱旅行' },
-                        { value: 135, name: '爱电影' },
-                        { value: 548, name: '爱游泳' }
-                    ]
-                }
-            ]
-        };
-        // 使用刚指定的配置项和数据显示图表。
-        myChart1.setOption(option1);
+                        },
+                        data: date
+                    }
+                ]
+            };
+            // 使用刚指定的配置项和数据显示图表。
+            myChart1.setOption(option1);
+
+        }
     </script>
     <!-- 柱状图 -->
     <script>
@@ -212,11 +258,11 @@
                 axisPointer: {            // 坐标轴指示器，坐标轴触发有效
                     type: 'line'        // 默认为直线，可选为：'line' | 'shadow'
                 },
-                
+
             },
             legend: {
                 data: ['爱生活', '趣美味', '爱旅行', '爱电影', '爱游泳'],
-                top:30
+                top: 30
             },
             grid: {
                 left: '3%',
